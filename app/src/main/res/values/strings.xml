@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Spending Tracker</string>
+
+    <string name="sum_of_a_day">Sum: %s</string>
+</resources>
