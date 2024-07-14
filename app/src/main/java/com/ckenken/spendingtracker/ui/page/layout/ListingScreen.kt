@@ -26,7 +26,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -106,7 +105,7 @@ fun ListingScreen(
 }
 
 @Composable
-fun HeaderSection() {
+fun HeaderSection(transactionDataList: List<TransactionData>) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -124,11 +123,12 @@ fun HeaderSection() {
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(16.dp),
         ) {
+            val cost = transactionDataList.sumOf { it.items.sumOf { item -> item.amount } }
             HeaderContentItem("收入", "0")
             VerticalDivider()
-            HeaderContentItem("支出", "9496")
+            HeaderContentItem("支出", (cost * -1).toInt().toString())
             VerticalDivider()
-            HeaderContentItem("結餘", "-9496")
+            HeaderContentItem("結餘", cost.toInt().toString())
         }
     }
 }
@@ -169,7 +169,7 @@ fun SpendingList(transactionDataList: List<TransactionData>) {
             Spacer(
                 modifier = Modifier.height(8.dp),
             )
-            HeaderSection()
+            HeaderSection(transactionDataList)
             Spacer(
                 modifier = Modifier.height(8.dp),
             )
@@ -201,7 +201,7 @@ fun SpendingItem(transactionData: TransactionData) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 12.dp, top = 4.dp, end = 12.dp),
+                    .padding(start = 12.dp, top = 4.dp, end = 12.dp, bottom = 4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -217,7 +217,6 @@ fun SpendingItem(transactionData: TransactionData) {
             Divider(
                 color = MaterialTheme.colorScheme.inverseOnSurface,
                 thickness = 1.dp,
-                modifier = Modifier.padding(vertical = 4.dp)
             )
             Column(
                 modifier = Modifier
@@ -229,13 +228,9 @@ fun SpendingItem(transactionData: TransactionData) {
                         Divider(
                             color = MaterialTheme.colorScheme.inverseOnSurface,
                             thickness = 1.dp,
-                            modifier = Modifier.padding(vertical = 4.dp)
                         )
                     }
                 }
-                Spacer(
-                    modifier = Modifier.height(8.dp),
-                )
             }
         }
     }
@@ -273,7 +268,10 @@ fun TransactionItem(item: TransactionItemData) {
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = item.name, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = item.note.ifEmpty { item.category },
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
         Text(
             text = "${item.amount}",

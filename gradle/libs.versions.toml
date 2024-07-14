@@ -15,10 +15,14 @@ ksp = "1.9.21-1.0.16"
 koin = "3.3.3"
 koinCompose = "3.3.0"
 koinKsp = "1.1.1"
+material = "1.6.8"
+material3 = "1.2.1"
 room = "2.6.1"
 roomCompiler = "2.6.1"
 roomKtx = "2.6.1"
 roomRuntime = "2.6.1"
+ui = "1.6.8"
+uiTooling = "1.6.8"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,6 +47,9 @@ koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose", versi
 koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
 koin-annotations = { group = "io.insert-koin", name = "koin-annotations", version.ref = "koinKsp" }
 koin-ksp-compiler = { group = "io.insert-koin", name = "koin-ksp-compiler", version.ref = "koinKsp" }
+ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiTooling" }
+ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
+material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 
 
 [plugins]

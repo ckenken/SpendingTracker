@@ -20,6 +20,7 @@ class MainActivity: ComponentActivity() {
         setContent {
             SpendingTrackerTheme {
                 val listState = viewModel.spendingList.collectAsState()
+//                BottomSheetContent(listState.value, ::onClickRefresh, ::onClickDelete)
                 ListingScreen(listState.value, ::onClickRefresh, ::onClickDelete)
             }
         }

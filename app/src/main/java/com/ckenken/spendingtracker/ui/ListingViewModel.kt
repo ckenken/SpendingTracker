@@ -65,8 +65,13 @@ class ListingViewModel(
                 date = date,
                 items = entities.map { entity ->
                     TransactionItemData(
-                        name = entity.note.ifEmpty { entity.category },
+                        note = entity.note.ifEmpty { entity.category },
                         amount = entity.amount,
+                        timestamp = entity.timestamp,
+                        type = entity.type,
+                        category = entity.category,
+                        currency = entity.currency,
+                        categoryColorId = entity.categoryColorId,
                     )
                 },
             )
@@ -80,7 +85,7 @@ class ListingViewModel(
             type = "支出",
             category = "餐飲", // getString by category
             categoryColorId = 1,
-            note = transactionItemData.name,
+            note = transactionItemData.note,
             amount = transactionItemData.amount,
             currency = "TWD",
         )
