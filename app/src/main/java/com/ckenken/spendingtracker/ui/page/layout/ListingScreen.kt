@@ -53,11 +53,13 @@ import com.ckenken.spendingtracker.data.SampleData
 import com.ckenken.spendingtracker.data.TransactionData
 import com.ckenken.spendingtracker.data.TransactionItemData
 import com.ckenken.spendingtracker.ui.theme.SpendingTrackerTheme
+import com.ckenken.spendingtracker.viewinfo.ListPageViewInfo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListingScreen(
-    productVMPackagesState: List<TransactionData>,
+    transactionDataList: List<TransactionItemData>,
+    listPageViewInfo: ListPageViewInfo,
     onClickRefresh: () -> Unit,
     onClickDelete: () -> Unit,
 ) {
@@ -68,7 +70,18 @@ fun ListingScreen(
             ) {
                 TopAppBar(
                     title = {
-                        Text("七月")
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text("七月")
+                            Spacer(modifier = Modifier.padding(end = 4.dp))
+                            SearchBar(
+                                text = listPageViewInfo.searchText,
+                                height = 40,
+                            ) {
+                                listPageViewInfo.onContentChangeListener.invoke(it)
+                            }
+                        }
                     },
                     navigationIcon = {
                         IconButton(
@@ -99,13 +112,13 @@ fun ListingScreen(
                 .padding(paddingValue)
                 .padding(horizontal = 8.dp)
         ) {
-            SpendingList(productVMPackagesState)
+            SpendingList(transactionDataList)
         }
     }
 }
 
 @Composable
-fun HeaderSection(transactionDataList: List<TransactionData>) {
+fun HeaderSection(transactionDataList: List<TransactionItemData>) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -123,7 +136,7 @@ fun HeaderSection(transactionDataList: List<TransactionData>) {
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(16.dp),
         ) {
-            val cost = transactionDataList.sumOf { it.items.sumOf { item -> item.amount } }
+            val cost = transactionDataList.sumOf { item -> item.amount  }
             HeaderContentItem("收入", "0")
             VerticalDivider()
             HeaderContentItem("支出", (cost * -1).toInt().toString())
@@ -163,7 +176,7 @@ fun VerticalDivider() {
 }
 
 @Composable
-fun SpendingList(transactionDataList: List<TransactionData>) {
+fun SpendingList(transactionDataList: List<TransactionItemData>) {
     LazyColumn {
         item {
             Spacer(
@@ -174,7 +187,12 @@ fun SpendingList(transactionDataList: List<TransactionData>) {
                 modifier = Modifier.height(8.dp),
             )
         }
-        items(transactionDataList) { transaction ->
+        val dateTransactionDataList = transactionDataList.groupBy { it.date }
+            .map {
+                TransactionData(it.key, it.value)
+            }
+
+        items(dateTransactionDataList) { transaction ->
             SpendingItem(transactionData = transaction)
         }
     }
@@ -251,6 +269,7 @@ fun TransactionItem(item: TransactionItemData) {
             }
             .padding(all = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -289,7 +308,12 @@ fun TransactionItem(item: TransactionItemData) {
 @Composable
 fun DefaultPreview() {
     SpendingTrackerTheme {
-        ListingScreen(productVMPackagesState = SampleData.sampleTransactionData, {}, {})
+        ListingScreen(
+            transactionDataList = SampleData.sampleTransactionData,
+            listPageViewInfo = ListPageViewInfo.defaultValue(),
+            {},
+            {},
+        )
     }
 }
 
@@ -297,6 +321,11 @@ fun DefaultPreview() {
 @Composable
 fun DefaultPreview2() {
     SpendingTrackerTheme {
-        ListingScreen(productVMPackagesState = SampleData.sampleTransactionData, {}, {})
+        ListingScreen(
+            transactionDataList = SampleData.sampleTransactionData,
+            listPageViewInfo = ListPageViewInfo.defaultValue(),
+            {},
+            {},
+        )
     }
 }

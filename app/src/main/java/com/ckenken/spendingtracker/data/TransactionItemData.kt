@@ -1,6 +1,7 @@
 package com.ckenken.spendingtracker.data
 
 data class TransactionItemData(
+    val date: String,
     val timestamp: Long,
     val type: String,
     val category: String,

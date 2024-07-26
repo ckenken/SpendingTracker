@@ -1,16 +1,14 @@
 package com.ckenken.spendingtracker.ui.theme
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -200,15 +198,10 @@ private val highContrastDarkColorScheme = darkColorScheme(
 
 @Immutable
 data class ColorFamily(
-    val color: Color,
-    val onColor: Color,
-    val colorContainer: Color,
-    val onColorContainer: Color
+    val textHintColor: Color,
 )
 
-val unspecified_scheme = ColorFamily(
-    Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
-)
+val LocalCustomColors = staticCompositionLocalOf { ColorFamily(Color.Unspecified) }
 
 @Composable
 fun SpendingTrackerTheme(
@@ -220,10 +213,24 @@ fun SpendingTrackerTheme(
         else -> lightScheme
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = AppTypography,
-        content = content
+    val spendingScheme = ColorFamily(
+        textHintColor = when {
+            darkTheme -> textHintColorDark
+            else -> textHintColorLight
+        }
     )
+
+    CompositionLocalProvider(LocalCustomColors provides spendingScheme) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = AppTypography,
+            content = content,
+        )
+    }
 }
 
+object SpendingTheme {
+    val colors: ColorFamily
+        @Composable
+        get() = LocalCustomColors.current
+}
