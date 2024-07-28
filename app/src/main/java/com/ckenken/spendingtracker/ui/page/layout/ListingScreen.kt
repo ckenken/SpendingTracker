@@ -62,6 +62,7 @@ fun ListingScreen(
     listPageViewInfo: ListPageViewInfo,
     onClickRefresh: () -> Unit,
     onClickDelete: () -> Unit,
+    listScreenModifier: Modifier = Modifier,
 ) {
     Scaffold(
         topBar = {
@@ -105,6 +106,7 @@ fun ListingScreen(
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
         },
+        modifier = listScreenModifier,
     ) { paddingValue ->
         Column(
             modifier = Modifier

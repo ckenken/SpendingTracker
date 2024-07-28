@@ -11,11 +11,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.BottomSheetDefaults
@@ -23,15 +27,18 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
@@ -53,7 +61,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ckenken.spendingtracker.R
 import com.ckenken.spendingtracker.data.SampleData
-import com.ckenken.spendingtracker.data.TransactionData
 import com.ckenken.spendingtracker.data.TransactionItemData
 import com.ckenken.spendingtracker.ui.theme.SpendingTrackerTheme
 import com.ckenken.spendingtracker.viewinfo.BottomSheetContentViewInfo
@@ -73,6 +80,7 @@ fun BottomSheetContent(
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(skipHiddenState = false),
     )
+    val modalNavigationDrawerState = rememberDrawerState(DrawerValue.Closed)
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -88,23 +96,54 @@ fun BottomSheetContent(
         },
     ) {
         val bottomSheetState = scaffoldState.bottomSheetState
-        BackHandler(enabled = bottomSheetState.currentValue == SheetValue.Expanded) {
+        BackHandler(
+            enabled = bottomSheetState.currentValue == SheetValue.Expanded || modalNavigationDrawerState.isOpen,
+        ) {
             scope.launch {
-                scaffoldState.bottomSheetState.hide()
+                when {
+                    modalNavigationDrawerState.isOpen -> modalNavigationDrawerState.close()
+                    bottomSheetState.currentValue == SheetValue.Expanded -> scaffoldState.bottomSheetState.hide()
+                }
             }
         }
 
-        ListingScreen(
-            transactionDataList = transactionDataList,
-            onClickRefresh = {
-                scope.launch {
-                    scaffoldState.bottomSheetState.expand()
-                    onClickRefresh.invoke()
+        ModalNavigationDrawer(
+            drawerContent = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .background(Color.White)
+                        .windowInsetsPadding(WindowInsets.safeDrawing)
+                        .padding(16.dp),
+                ) {
+                    Text("Drawer Item 1", style = MaterialTheme.typography.bodyLarge)
+                    Text("Drawer Item 2", style = MaterialTheme.typography.bodyLarge)
+                    Text("Drawer Item 3", style = MaterialTheme.typography.bodyLarge)
                 }
             },
-            listPageViewInfo = listPageViewInfo,
-            onClickDelete = onClickDelete
-        )
+            drawerState = modalNavigationDrawerState,
+        ) {
+            ListingScreen(
+                transactionDataList = transactionDataList,
+                onClickRefresh = {
+                    scope.launch {
+                        scaffoldState.bottomSheetState.expand()
+                        onClickRefresh.invoke()
+                    }
+                },
+                listPageViewInfo = listPageViewInfo,
+                onClickDelete = {
+                    onClickDelete.invoke()
+                    scope.launch {
+                        if (modalNavigationDrawerState.isOpen) {
+                            modalNavigationDrawerState.close()
+                        } else {
+                            modalNavigationDrawerState.open()
+                        }
+                    }
+                },
+            )
+        }
     }
 }
 
